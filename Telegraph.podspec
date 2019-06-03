@@ -20,6 +20,6 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '9.0'
   s.osx.deployment_target = '10.10'
 
-  s.dependency 'CocoaAsyncSocket', '~> 7.5'
-  s.dependency 'HTTPParserC', '~> 2.7'
+  s.dependency 'CocoaAsyncSocket'
+  s.dependency 'HTTPParserC'
 end
