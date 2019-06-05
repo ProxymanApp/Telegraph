@@ -36,17 +36,19 @@ public final class TCPSocket: NSObject {
   /// The delegate to handle socket events.
   public weak var delegate: TCPSocketDelegate?
 
-  private let socket: GCDAsyncSocket
+  private var socket: GCDAsyncSocket!
   private let tlsPolicy: TLSPolicy?
+    fileprivate var enableTLS: Bool = false
+    public private(set) var trust: SecTrust!
 
   /// Creates a socket to connect to an endpoint.
-  public init(endpoint: Endpoint, tlsPolicy: TLSPolicy? = nil) {
+    public init(endpoint: Endpoint, tlsPolicy: TLSPolicy? = nil, queue: DispatchQueue? = nil) {
     self.endpoint = endpoint
     self.tlsPolicy = tlsPolicy
-    self.socket = GCDAsyncSocket()
 
     defer { socket.delegate = self }
     super.init()
+    self.socket = GCDAsyncSocket(delegate: self, delegateQueue: queue, socketQueue: queue)
   }
 
   /// Creates a socket by wrapping an existing GCDAsyncSocket.
@@ -101,6 +103,14 @@ public final class TCPSocket: NSObject {
     }
   }
 
+    public func connect(with enableTLS: Bool = false, tlsSettings: [AnyHashable: Any]? = nil) throws {
+        self.enableTLS = enableTLS
+        connect()
+        if enableTLS {
+            startTLSWith(settings: tlsSettings)
+        }
+    }
+
   /// Closes the connection.
   public func close(when: TCPSocketClose = .immediately) {
     switch when {
@@ -121,6 +131,10 @@ public final class TCPSocket: NSObject {
     socket.readData(toLength: UInt(maxLength), withTimeout: timeout, tag: tag)
   }
 
+    public func readData(to data: Data) {
+        socket.readData(to: data, withTimeout: -1, tag: 0)
+    }
+    
   /// Writes data with a timeout and tag.
   public func write(data: Data, timeout: TimeInterval = -1, tag: Int = 0) {
     socket.write(data, withTimeout: timeout, tag: tag)
@@ -137,6 +151,31 @@ public final class TCPSocket: NSObject {
 
     socket.startTLS(rawConfig)
   }
+
+    public func startTLS(with config: TLSConfig) {
+        let rawConfig = config.rawConfig
+        startTLSWith(settings: rawConfig)
+    }
+
+    private func startTLSWith(settings: [AnyHashable: Any]!) {
+        if let settings = settings as? [String: NSObject] {
+            socket.startTLS(ensureSendPeerName(tlsSettings: settings))
+        } else {
+            socket.startTLS(ensureSendPeerName(tlsSettings: nil))
+        }
+    }
+
+    private func ensureSendPeerName(tlsSettings: [String: NSObject]? = nil) -> [String: NSObject] {
+        var setting = tlsSettings ?? [:]
+        guard setting[kCFStreamSSLPeerName as String] == nil else {
+            return setting
+        }
+
+        // Peer name as a host
+        setting[kCFStreamSSLPeerName as String] = endpoint.host as NSString
+
+        return setting
+    }
 }
 
 /// ReadStream and WriteStream implementation
@@ -181,7 +220,7 @@ extension TCPSocket: GCDAsyncSocketDelegate {
 
   /// Raised when the socket is asking to evaluate the trust as part of the TLS handshake.
   public func socket(_ sock: GCDAsyncSocket, didReceive trust: SecTrust, completionHandler: @escaping (Bool) -> Void) {
-    let trusted = tlsPolicy?.evaluate(trust: trust) ?? false
-    completionHandler(trusted)
+    self.trust = trust
+    completionHandler(true)
   }
 }

@@ -9,6 +9,9 @@
 public class SynchronizedSet<Element: Hashable> {
   private var innerSet = Set<Element>()
   private let queue = DispatchQueue(label: "Telegraph.SynchronizedSet", attributes: .concurrent)
+
+    public init() {
+    }
 }
 
 public extension SynchronizedSet {

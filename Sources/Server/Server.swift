@@ -143,6 +143,18 @@ extension Server: TCPListenerDelegate {
       self.webSocketDelegate?.serverDidDisconnect(self)
     }
   }
+
+    public func listenerNewSocketQueueForConnection() -> DispatchQueue? {
+        return nil
+    }
+
+    public func listenerDidWriteData() {
+
+    }
+
+    public func listenerDidRead(data: Data) {
+        
+    }
 }
 
 // MARK: HTTPConnectionDelegate implementation

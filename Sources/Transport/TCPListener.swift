@@ -15,6 +15,8 @@ public protocol TCPListenerDelegate: class {
 
   /// Called when the listener socket has disconnected
   func listenerDisconnected(_ listener: TCPListener, error: Error?)
+
+  func listenerNewSocketQueueForConnection() -> DispatchQueue?
 }
 
 public final class TCPListener: NSObject {
@@ -28,16 +30,17 @@ public final class TCPListener: NSObject {
   public let tlsConfig: TLSConfig?
 
   private let listenerPort: UInt16
-  private var listenerSocket: GCDAsyncSocket
+  public private(set) var listenerSocket: GCDAsyncSocket!
 
   /// Creates a listener that listens on the provided port and interface.
-  public init(port: Endpoint.Port, interface: String? = nil, tlsConfig: TLSConfig? = nil) {
+    public init(port: Endpoint.Port, interface: String? = nil, tlsConfig: TLSConfig? = nil, queue: DispatchQueue? = nil) {
     self.listenerPort = UInt16(port)
-    self.listenerSocket = GCDAsyncSocket()
+
     self.interface = interface
     self.tlsConfig = tlsConfig
 
     super.init()
+    self.listenerSocket = GCDAsyncSocket(delegate: self, delegateQueue: queue, socketQueue: queue)
   }
 
   /// Indicates if the listener is active.
@@ -58,12 +61,13 @@ public final class TCPListener: NSObject {
 
   /// Starts the listener with a queue to perform the delegate calls on.
   public func start(queue: DispatchQueue) throws {
-    listenerSocket.setDelegate(self, delegateQueue: queue)
+//    listenerSocket.setDelegate(self, delegateQueue: queue)
     try listenerSocket.accept(onPort: listenerPort)
   }
 
   /// Stops the listener.
   public func stop() {
+    listenerSocket.setDelegate(nil, delegateQueue: nil)
     listenerSocket.disconnect()
   }
 }
@@ -87,4 +91,8 @@ extension TCPListener: GCDAsyncSocketDelegate {
   public func socketDidDisconnect(_ sock: GCDAsyncSocket, withError err: Error?) {
     delegate?.listenerDisconnected(self, error: err)
   }
+
+    public func newSocketQueueForConnection(fromAddress address: Data, on sock: GCDAsyncSocket) -> DispatchQueue? {
+        return delegate?.listenerNewSocketQueueForConnection()
+    }
 }

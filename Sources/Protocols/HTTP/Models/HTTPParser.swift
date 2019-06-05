@@ -18,6 +18,7 @@ private let stopParsing: Int32 = -1
 public final class HTTPParser {
   public private(set) var message: HTTPMessage?
   public private(set) var isMessageComplete = false
+  public private(set) var isHeaderComplete = false
   public var isUpgradeDetected: Bool { return rawParser.isUpgradeDetected }
 
   private var request: HTTPRequest? { return message as? HTTPRequest }
@@ -103,6 +104,7 @@ public final class HTTPParser {
   /// Resets the parser.
   public func reset() {
     isMessageComplete = false
+    isHeaderComplete = false
     message = nil
   }
 
@@ -123,6 +125,7 @@ extension HTTPParser {
   /// Raised when the raw parser starts a new message.
   func parserDidBeginMessage(_ rawParser: HTTPRawParser) -> Int32 {
     isMessageComplete = false
+    isHeaderComplete = false
     message = rawParser.isParsingRequest ? HTTPRequest() : HTTPResponse()
     return continueParsing
   }
@@ -200,6 +203,7 @@ extension HTTPParser {
       message?.headers[headerKey] = headerValue
     }
 
+    isHeaderComplete = true
     return true
   }
 
