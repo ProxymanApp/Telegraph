@@ -13,7 +13,7 @@ public struct HTTPHeaders {
   public private(set) var headers: [HTTPHeaderName: String] = [:]
   public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
 
-  init(_ headers: [HTTPHeaderName: String]) {
+  public init(_ headers: [HTTPHeaderName: String]) {
     self.headers = headers
     headers.forEach { key, value in
       self[key] = value
