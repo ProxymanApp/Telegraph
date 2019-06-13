@@ -50,8 +50,11 @@ public struct HTTPHeaders {
     if let newValue = newValue {
       orderHeaders.append((key, newValue))
     } else {
-      orderHeaders.removeAll { header -> Bool in
+      let index = orderHeaders.firstIndex { header -> Bool in
         return header.0 == key
+      }
+      if let removeIndex = index {
+        orderHeaders.remove(at: removeIndex)
       }
     }
   }
