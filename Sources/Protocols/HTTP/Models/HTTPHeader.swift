@@ -8,7 +8,37 @@
 
 import Foundation
 
-public typealias HTTPHeaders = [HTTPHeaderName: String]
+public struct HTTPHeaders {
+
+  public var headers: [HTTPHeaderName: String] = [:]
+  public private(set) var orderHeaders: [(HTTPHeaderName, String)]
+
+  private init(headers: [HTTPHeaderName: String]) {
+    self.headers = headers
+    self.orderHeaders = []
+  }
+
+  static var empty: HTTPHeaders {
+    return self.init(headers: [HTTPHeaderName: String](minimumCapacity: 3))
+  }
+
+  subscript(key: String) -> String? {
+    get { return headers[HTTPHeaderName(key)] }
+    set {
+      let key = HTTPHeaderName(key)
+      headers[key] = newValue
+
+      // Append or remove
+      if let newValue = newValue {
+        orderHeaders.append((key, newValue))
+      } else {
+        orderHeaders.removeAll { (header) -> Bool in
+          return header.0 == key
+        }
+      }
+    }
+  }
+}
 
 public struct HTTPHeaderName: Hashable {
   private let name: String
@@ -44,19 +74,6 @@ extension HTTPHeaderName: CustomStringConvertible {
 extension HTTPHeaderName: ExpressibleByStringLiteral {
   public init(stringLiteral string: String) {
     self.init(string)
-  }
-}
-
-// MARK: Convenience methods
-
-public extension Dictionary where Key == HTTPHeaderName, Value == String {
-  static var empty: HTTPHeaders {
-    return self.init(minimumCapacity: 3)
-  }
-
-  subscript(key: String) -> String? {
-    get { return self[HTTPHeaderName(key)] }
-    set { self[HTTPHeaderName(key)] = newValue }
   }
 }
 

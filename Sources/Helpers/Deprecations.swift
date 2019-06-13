@@ -37,8 +37,8 @@ public extension DispatchTimer {
 
 // MARK: - HTTPHeader
 
-@available(*, deprecated, message: "use HTTPHeaderName")
-typealias HTTPHeader = HTTPHeaderName
+//@available(*, deprecated, message: "use HTTPHeaderName")
+//typealias HTTPHeader = HTTPHeaderName
 
 @available(*, deprecated, message: "use Dictionary")
 typealias CustomKeyIndexable = Dictionary
