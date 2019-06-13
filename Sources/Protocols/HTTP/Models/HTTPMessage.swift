@@ -17,7 +17,7 @@ open class HTTPMessage {
   internal var stripBody = false
 
   /// Creates a new HTTPMessage.
-  public init(version: HTTPVersion = .default, headers: HTTPHeaders = .empty, body: Data = Data()) {
+  public init(version: HTTPVersion = .default, headers: HTTPHeaders = HTTPHeaders.empty, body: Data = Data()) {
     self.version = version
     self.headers = headers
     self.body = body
@@ -48,7 +48,7 @@ open class HTTPMessage {
     head.append(.crlf)
 
     // Write the headers
-    headers.forEach { key, value in
+    headers.orderHeaders.forEach { key, value in
       head.append("\(key): \(value)".utf8Data)
       head.append(.crlf)
     }

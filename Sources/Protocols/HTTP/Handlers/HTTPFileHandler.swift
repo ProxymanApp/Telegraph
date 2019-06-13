@@ -86,7 +86,7 @@ open class HTTPFileHandler: HTTPRequestHandler {
 
       // Validate the range, if something is wrong respond with a 416 (Range Not Satisfiable)
       if byteStart >= fileSize || byteEnd >= fileSize || byteEnd < byteStart {
-        return HTTPResponse(.rangeNotSatisfiable, headers: [.contentRange: "bytes */\(fileSize)"])
+        return HTTPResponse(.rangeNotSatisfiable, headers: HTTPHeaders([.contentRange: "bytes */\(fileSize)"]))
       }
 
       // Add the header that describes the range in the response

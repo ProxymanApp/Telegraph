@@ -10,31 +10,48 @@ import Foundation
 
 public struct HTTPHeaders {
 
-  public var headers: [HTTPHeaderName: String] = [:]
-  public private(set) var orderHeaders: [(HTTPHeaderName, String)]
+  public private(set) var headers: [HTTPHeaderName: String] = [:]
+  public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
 
-  private init(headers: [HTTPHeaderName: String]) {
+  init(_ headers: [HTTPHeaderName: String]) {
     self.headers = headers
-    self.orderHeaders = []
+    headers.forEach { key, value in
+      self[key] = value
+    }
   }
 
-  static var empty: HTTPHeaders {
-    return self.init(headers: [HTTPHeaderName: String](minimumCapacity: 3))
+  public static var empty: HTTPHeaders {
+    return self.init([HTTPHeaderName: String](minimumCapacity: 3))
   }
 
-  subscript(key: String) -> String? {
+  public var count: Int {
+    return headers.count
+  }
+
+  public subscript(key: String) -> String? {
     get { return headers[HTTPHeaderName(key)] }
     set {
       let key = HTTPHeaderName(key)
       headers[key] = newValue
+      updateOrderHeader(with: key, newValue: newValue)
+    }
+  }
 
-      // Append or remove
-      if let newValue = newValue {
-        orderHeaders.append((key, newValue))
-      } else {
-        orderHeaders.removeAll { (header) -> Bool in
-          return header.0 == key
-        }
+  public subscript(key: HTTPHeaderName) -> String? {
+    get { return headers[key] }
+    set {
+      headers[key] = newValue
+      updateOrderHeader(with: key, newValue: newValue)
+    }
+  }
+
+  private mutating func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
+    // Append or remove
+    if let newValue = newValue {
+      orderHeaders.append((key, newValue))
+    } else {
+      orderHeaders.removeAll { header -> Bool in
+        return header.0 == key
       }
     }
   }
@@ -118,7 +135,7 @@ public extension HTTPHeaderName {
   static let upgrade = HTTPHeaderName("Upgrade")
 }
 
-public extension Dictionary where Key == HTTPHeaderName, Value == String {
+public extension HTTPHeaders {
   var accept: String? {
     get { return self[.accept] }
     set { self[.accept] = newValue }
