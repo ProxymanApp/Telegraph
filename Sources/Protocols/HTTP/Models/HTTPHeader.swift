@@ -48,12 +48,12 @@ public struct HTTPHeaders {
   private mutating func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
     // Append or remove
     if let newValue = newValue {
-      let isContain = orderHeaders.contains { $0.0 == key }
+      let isContain = orderHeaders.contains { $0.0.nameInLowercase == key.nameInLowercase }
       if !isContain {
         orderHeaders.append((key, newValue))
       }
     } else {
-      let index = orderHeaders.firstIndex { $0.0 == key }
+      let index = orderHeaders.firstIndex { $0.0.nameInLowercase == key.nameInLowercase }
       if let removeIndex = index {
         orderHeaders.remove(at: removeIndex)
       }
@@ -62,8 +62,8 @@ public struct HTTPHeaders {
 }
 
 public struct HTTPHeaderName: Hashable {
-  private let name: String
-  private let nameInLowercase: String
+  public let name: String
+  public let nameInLowercase: String
 
   /// Creates a HTTPHeader name. Header names are case insensitive according to RFC7230.
   init(_ name: String) {
