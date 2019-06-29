@@ -48,11 +48,12 @@ public struct HTTPHeaders {
   private mutating func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
     // Append or remove
     if let newValue = newValue {
-      orderHeaders.append((key, newValue))
-    } else {
-      let index = orderHeaders.firstIndex { header -> Bool in
-        return header.0 == key
+      let isContain = orderHeaders.contains { $0.0 == key }
+      if !isContain {
+        orderHeaders.append((key, newValue))
       }
+    } else {
+      let index = orderHeaders.firstIndex { $0.0 == key }
       if let removeIndex = index {
         orderHeaders.remove(at: removeIndex)
       }
