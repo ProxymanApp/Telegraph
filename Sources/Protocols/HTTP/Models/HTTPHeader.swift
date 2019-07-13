@@ -10,14 +10,12 @@ import Foundation
 
 public struct HTTPHeaders {
 
-  public private(set) var headers: [HTTPHeaderName: String] = [:]
+  // Use array for header, because some keys could be duplicated
+  // Ref: https://github.com/ProxymanApp/Proxyman/issues/213
   public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
 
   public init(_ headers: [HTTPHeaderName: String]) {
-    self.headers = headers
-    headers.forEach { key, value in
-      self[key] = value
-    }
+    self.orderHeaders = headers.map { return ($0.key, $0.value) }
   }
 
   public static var empty: HTTPHeaders {
@@ -25,22 +23,22 @@ public struct HTTPHeaders {
   }
 
   public var count: Int {
-    return headers.count
+    return orderHeaders.count
   }
 
   public subscript(key: String) -> String? {
-    get { return headers[HTTPHeaderName(key)] }
+    get {
+        return orderHeaders.first(where: { $0.0 == HTTPHeaderName(key) })?.1
+    }
     set {
       let key = HTTPHeaderName(key)
-      headers[key] = newValue
       updateOrderHeader(with: key, newValue: newValue)
     }
   }
 
   public subscript(key: HTTPHeaderName) -> String? {
-    get { return headers[key] }
+    get { return orderHeaders.first(where: { $0.0 == key })?.1 }
     set {
-      headers[key] = newValue
       updateOrderHeader(with: key, newValue: newValue)
     }
   }
