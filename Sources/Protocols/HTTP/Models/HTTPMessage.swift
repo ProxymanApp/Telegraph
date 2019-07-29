@@ -81,3 +81,30 @@ public extension HTTPMessage {
     return headers.connection?.caseInsensitiveCompare("upgrade") == .orderedSame
   }
 }
+
+// MARK: Proxyman
+
+public extension HTTPMessage {
+
+    func httpMessageData() -> Data {
+        var head = Data()
+        head.reserveCapacity(100)
+
+        // Write the first line
+        head.append(firstLine.utf8Data)
+        head.append(.crlf)
+
+        // Write the headers
+        headers.orderHeaders.forEach { key, value in
+            head.append("\(key): \(value)".utf8Data)
+            head.append(.crlf)
+        }
+
+        // Signal the end of the headers with another crlf
+        head.append(.crlf)
+
+        // Start body
+        head.append(body)
+        return head
+    }
+}
