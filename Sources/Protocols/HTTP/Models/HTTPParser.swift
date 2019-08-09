@@ -18,6 +18,7 @@ private let stopParsing: Int32 = -1
 public final class HTTPParser {
   public private(set) var message: HTTPMessage?
   public private(set) var isMessageComplete = false
+  public private(set) var isHeaderComplete = false
   public var isUpgradeDetected: Bool { return rawParser.isUpgradeDetected }
 
   private var request: HTTPRequest? { return message as? HTTPRequest }
@@ -102,12 +103,13 @@ public final class HTTPParser {
 
   /// Resets the parser.
   public func reset() {
+    isHeaderComplete = false
     isMessageComplete = false
     message = nil
   }
 
   /// Clears the helper variables.
-  private func cleanup() {
+  public func cleanup() {
     urlData.count = 0
     statusData.count = 0
 
@@ -123,6 +125,7 @@ extension HTTPParser {
   /// Raised when the raw parser starts a new message.
   func parserDidBeginMessage(_ rawParser: HTTPRawParser) -> Int32 {
     isMessageComplete = false
+    isHeaderComplete = false
     message = rawParser.isParsingRequest ? HTTPRequest() : HTTPResponse()
     return continueParsing
   }
@@ -141,7 +144,23 @@ extension HTTPParser {
     // Set the URI, method and the host header
     request?.uri = URI(components: uriComponents)
     request?.method = rawParser.httpMethod
-    request?.setHostHeader(host: uriComponents.host, port: uriComponents.port)
+
+    // Proxyman
+    // Get Host and port properly
+    if rawParser.httpMethod == .CONNECT {
+      let components = uriString.components(separatedBy: ":")
+      if components.count > 1 {
+        var port = 443
+        if let portStr = components.last, let portNumber = Int(portStr) {
+          port = portNumber
+        }
+        request?.setHostHeader(host: components.first, port: port)
+      } else {
+        request?.setHostHeader(host: components.first, port: 443)
+      }
+    } else {
+      request?.setHostHeader(host: uriComponents.host, port: uriComponents.port)
+    }
 
     return continueParsing
   }
@@ -195,11 +214,17 @@ extension HTTPParser {
 
     // If the header already exists add it comma separated
     if let existingValue = message?.headers[headerKey] {
-      message?.headers[headerKey] = "\(existingValue),\(headerValue)"
+      if headerKey.lowercased() == "host" {
+        // Only one host
+        message?.headers[headerKey] = headerValue
+      } else {
+        message?.headers[headerKey] = "\(existingValue),\(headerValue)"
+      }
     } else {
       message?.headers[headerKey] = headerValue
     }
 
+    isHeaderComplete = true
     return true
   }
 
@@ -232,6 +257,7 @@ extension HTTPParser {
   /// Raised when the parser parsed the whole message.
   func parserDidCompleteMessage(_ rawParser: HTTPRawParser) -> Int32 {
     isMessageComplete = true
+    isHeaderComplete = true
     cleanup()
 
     return continueParsing

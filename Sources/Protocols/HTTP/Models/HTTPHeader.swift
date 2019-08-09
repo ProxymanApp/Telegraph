@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct HTTPHeaders {
+public class HTTPHeaders {
 
   public private(set) var headers: [HTTPHeaderName: String] = [:]
   public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
@@ -21,7 +21,7 @@ public struct HTTPHeaders {
   }
 
   public static var empty: HTTPHeaders {
-    return self.init([HTTPHeaderName: String](minimumCapacity: 3))
+    return HTTPHeaders.init([HTTPHeaderName: String](minimumCapacity: 3))
   }
 
   public var count: Int {
@@ -45,7 +45,7 @@ public struct HTTPHeaders {
     }
   }
 
-  private mutating func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
+  private func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
     // Append or remove
     if let newValue = newValue {
       let isContain = headers[key] != nil

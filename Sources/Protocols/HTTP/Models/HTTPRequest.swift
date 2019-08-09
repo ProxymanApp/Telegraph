@@ -13,6 +13,9 @@ open class HTTPRequest: HTTPMessage {
   public var uri: URI
   public var params = Params()
 
+  public var destinationHost: String?
+  public var destinationPort: Int = 80
+
   /// Creates a new HTTPRequest.
   public init(_ method: HTTPMethod = .GET, uri: URI = .root, version: HTTPVersion = .default,
               headers: HTTPHeaders = .empty, body: Data = Data()) {
