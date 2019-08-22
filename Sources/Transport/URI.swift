@@ -77,7 +77,8 @@ public extension URI {
 }
 
 extension URI: CustomStringConvertible {
-  public var description: String {
-    return components.description
-  }
+    public var description: String {
+        // Remove ... in description
+        return components.url?.absoluteString ?? components.description
+    }
 }
