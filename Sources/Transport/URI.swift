@@ -77,8 +77,36 @@ public extension URI {
 }
 
 extension URI: CustomStringConvertible {
-    public var description: String {
-        // Remove ... in description
-        return components.url?.absoluteString ?? components.description
+  public var description: String {
+    //
+    var newComponents = components
+    let queries = components.queryItems?.map({ (item) -> String in
+      let name = item.name.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed) ?? ""
+      let value = item.value?.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed) ?? ""
+      return "\(name)=\(value)"
+    })
+    if let encodedQuery = queries {
+      newComponents.percentEncodedQuery = encodedQuery.joined(separator: "&")
     }
+    return newComponents.url?.absoluteString ?? components.url?.absoluteString ?? components.description
+  }
+}
+
+extension CharacterSet {
+  /// Creates a CharacterSet from RFC 3986 allowed characters.
+  ///
+  /// RFC 3986 states that the following characters are "reserved" characters.
+  ///
+  /// - General Delimiters: ":", "#", "[", "]", "@", "?", "/"
+  /// - Sub-Delimiters: "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
+  ///
+  /// In RFC 3986 - Section 3.4, it states that the "?" and "/" characters should not be escaped to allow
+  /// query strings to include a URL. Therefore, all "reserved" characters with the exception of "?" and "/"
+  /// should be percent-escaped in the query string.
+  public static let afURLQueryAllowed: CharacterSet = {
+    let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
+    let subDelimitersToEncode = "!$&'()*+,;="
+    let encodableDelimiters = CharacterSet(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
+    return CharacterSet.urlQueryAllowed.subtracting(encodableDelimiters)
+  }()
 }
