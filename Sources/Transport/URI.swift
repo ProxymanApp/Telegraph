@@ -9,18 +9,19 @@
 import Foundation
 
 public struct URI {
-  private var components: URLComponents
+  public let path: String
+  public let query: String?
 
   /// Creates a URI from the provided path, query string.
   public init(path: String = "/", query: String? = nil) {
-    self.components = URLComponents()
-    self.path = path
+    let newPath = path.hasPrefix("/") ? path : "/\(path)"
+    self.path = newPath
     self.query = query
   }
 
   /// Creates a URI from URLComponents. Takes only the path, query string.
   public init(components: URLComponents) {
-    self.init(path: components.path, query: components.query)
+    self.init(path: components.path, query: components.percentEncodedQuery)
   }
 
   /// Creates a URI from the provided URL. Takes only the path, query string and fragment.
@@ -33,26 +34,6 @@ public struct URI {
   public init?(_ string: String) {
     guard let components = URLComponents(string: string) else { return nil }
     self.init(components: components)
-  }
-}
-
-public extension URI {
-  /// The path of the URI (e.g. /index.html). Always starts with a slash.
-  var path: String {
-    get { return components.path }
-    set { components.path = newValue.hasPrefix("/") ? newValue : "/\(newValue)" }
-  }
-
-  /// The query string of the URI (e.g. lang=en&page=home). Does not contain a question mark.
-  var query: String? {
-    get { return components.query }
-    set { components.query = newValue }
-  }
-
-  /// The query string items of the URI as an array.
-  var queryItems: [URLQueryItem]? {
-    get { return components.queryItems }
-    set { components.queryItems = newValue }
   }
 }
 
@@ -78,6 +59,9 @@ public extension URI {
 
 extension URI: CustomStringConvertible {
   public var description: String {
-    return components.description
+    if let query = query {
+      return "\(path)?\(query)"
+    }
+    return path
   }
 }

@@ -48,7 +48,7 @@ public extension HTTPHeaderName {
   static let upgrade = HTTPHeaderName("Upgrade")
 }
 
-public extension Dictionary where Key == HTTPHeaderName, Value == String {
+public extension HTTPHeaders {
   var accept: String? {
     get { return self[.accept] }
     set { self[.accept] = newValue }

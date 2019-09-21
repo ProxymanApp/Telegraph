@@ -15,7 +15,7 @@ public extension HTTPHeaderName {
   static let webSocketVersion = HTTPHeaderName("Sec-WebSocket-Version")
 }
 
-public extension Dictionary where Key == HTTPHeaderName, Value == String {
+public extension HTTPHeaders {
   var webSocketAccept: String? {
     get { return self[.webSocketAccept] }
     set { self[.webSocketAccept] = newValue }
