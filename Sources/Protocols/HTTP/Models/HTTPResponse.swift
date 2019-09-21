@@ -21,7 +21,7 @@ open class HTTPResponse: HTTPMessage {
   }
 
   /// Writes the first line of the response, e.g. HTTP/1.1 200 OK
-  override internal var firstLine: String {
+  override public var firstLine: String {
     return "\(version) \(status)"
   }
 

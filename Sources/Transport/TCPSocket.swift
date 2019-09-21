@@ -50,7 +50,7 @@ public final class TCPSocket: NSObject {
   }
 
   /// Creates a socket by wrapping an existing GCDAsyncSocket.
-  internal init(wrapping socket: GCDAsyncSocket) {
+  public init(wrapping socket: GCDAsyncSocket) {
     self.endpoint = Endpoint(host: socket.localHost ?? "", port: socket.localPort)
     self.tlsPolicy = nil
     self.socket = socket

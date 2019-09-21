@@ -15,7 +15,7 @@ public extension HTTPConfig {
 }
 
 public extension WebSocketConfig {
-  static var serverDefault: WebSocketConfig {
+  public static var serverDefault: WebSocketConfig {
     var config = WebSocketConfig()
     config.maskMessages = false
     config.pingInterval = 60

@@ -47,3 +47,37 @@ open class HTTPWebSocketHandler: HTTPRequestHandler {
     return .webSocketHandshake(key: webSocketKey, protocolName: protocolName)
   }
 }
+
+extension HTTPWebSocketHandler {
+
+  public func handleWebsocketIfNeed(for request: HTTPRequest) throws -> HTTPResponse? {
+    // Skip if this isn't a websocket upgrade request
+    guard request.isWebSocketUpgrade else {
+      return nil
+    }
+
+    // Validate the handshake
+    guard request.method == .GET else { throw HTTPError.invalidMethod }
+    guard request.version.minor == 1 else { throw HTTPError.invalidVersion }
+
+    // We must have a websocket key
+    guard let webSocketKey = request.headers.webSocketKey else {
+      return HTTPResponse(.badRequest, content: "Websocket key is missing")
+    }
+
+    // Check that we support the websocket version
+    guard request.headers.webSocketVersion == HTTPMessage.webSocketVersion else {
+      return HTTPResponse(.notImplemented, content: "Websocket version not supported")
+    }
+
+    // Check that we support the websocket protocol
+    if let serverProtocol = protocolName, let clientProtocol = request.headers.webSocketProtocol, !clientProtocol.isEmpty {
+      let clientProtocols = clientProtocol.split(separator: ",")
+      guard clientProtocols.contains(Substring(serverProtocol)) else {
+        return HTTPResponse(.notImplemented, content: "Websocket protocol not supported")
+      }
+    }
+
+    return .webSocketHandshake(key: webSocketKey, protocolName: protocolName)
+  }
+}
