@@ -216,9 +216,10 @@ extension HTTPParser {
     if let existingValue = message?.headers[headerKey] {
       if headerKey.lowercased() == "host" {
         // Only one host
+        message?.headers[headerKey] = nil
         message?.headers[headerKey] = headerValue
       } else {
-        message?.headers[headerKey] = "\(existingValue), \(headerValue)"
+        message?.headers[headerKey] = headerValue
       }
     } else {
       message?.headers[headerKey] = headerValue

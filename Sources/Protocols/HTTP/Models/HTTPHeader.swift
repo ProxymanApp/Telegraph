@@ -10,11 +10,10 @@ import Foundation
 
 public class HTTPHeaders {
 
-  public private(set) var headers: [HTTPHeaderName: String] = [:]
+  private var mapHeaders: [HTTPHeaderName: Int] = [:]
   public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
 
   public init(_ headers: [HTTPHeaderName: String]) {
-    self.headers = headers
     headers.forEach { key, value in
       self[key] = value
     }
@@ -25,22 +24,30 @@ public class HTTPHeaders {
   }
 
   public var count: Int {
-    return headers.count
+    return orderHeaders.count
   }
 
   public subscript(key: String) -> String? {
-    get { return headers[HTTPHeaderName(key)] }
+    get {
+      if let index = mapHeaders[HTTPHeaderName(key)] {
+        return orderHeaders[safe: index]?.1
+      }
+      return nil
+    }
     set {
       let key = HTTPHeaderName(key)
-      headers[key] = newValue
       updateOrderHeader(with: key, newValue: newValue)
     }
   }
 
   public subscript(key: HTTPHeaderName) -> String? {
-    get { return headers[key] }
+    get {
+      if let index = mapHeaders[key] {
+        return orderHeaders[safe: index]?.1
+      }
+      return nil
+    }
     set {
-      headers[key] = newValue
       updateOrderHeader(with: key, newValue: newValue)
     }
   }
@@ -48,19 +55,13 @@ public class HTTPHeaders {
   private func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
     // Append or remove
     if let newValue = newValue {
-      let isContain = headers[key] != nil
-
-      // Remove if it's existing
-      if isContain {
-        if let index = orderHeaders.firstIndex (where: { $0.0 == key }) {
-          orderHeaders.remove(at: index)
-        }
-      }
       orderHeaders.append((key, newValue))
+      mapHeaders[key] = orderHeaders.count - 1
     } else {
       let index = orderHeaders.firstIndex { $0.0.nameInLowercase == key.nameInLowercase }
       if let removeIndex = index {
         orderHeaders.remove(at: removeIndex)
+        mapHeaders[key] = nil
       }
     }
   }
@@ -113,5 +114,13 @@ public extension Dictionary where Key == HTTPHeaderName, Value == String {
   subscript(key: String) -> String? {
     get { return self[HTTPHeaderName(key)] }
     set { self[HTTPHeaderName(key)] = newValue }
+  }
+}
+
+extension Collection {
+
+  /// Returns the element at the specified index if it is within bounds, otherwise nil.
+  subscript (safe index: Index) -> Element? {
+    return indices.contains(index) ? self[index] : nil
   }
 }
