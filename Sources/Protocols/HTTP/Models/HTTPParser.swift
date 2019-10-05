@@ -218,7 +218,7 @@ extension HTTPParser {
         // Only one host
         message?.headers[headerKey] = headerValue
       } else {
-        message?.headers[headerKey] = "\(existingValue),\(headerValue)"
+        message?.headers[headerKey] = "\(existingValue), \(headerValue)"
       }
     } else {
       message?.headers[headerKey] = headerValue
