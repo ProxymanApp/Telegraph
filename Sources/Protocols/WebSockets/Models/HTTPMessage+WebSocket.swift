@@ -14,7 +14,7 @@ extension HTTPMessage {
   public static let webSocketVersion = "13"
 
   /// Is this an upgrade to the WebSocket protocol?
-  var isWebSocketUpgrade: Bool {
+  public var isWebSocketUpgrade: Bool {
     return headers.upgrade?.caseInsensitiveCompare(HTTPMessage.webSocketProtocol) == .orderedSame
   }
 }
