@@ -8,7 +8,7 @@
 
 import Foundation
 
-open class WebSocketMessage {
+open class WebSocketMessage: Codable {
   public var finBit = true
   public var maskBit = true
   public var opcode: WebSocketOpcode
@@ -21,7 +21,7 @@ open class WebSocketMessage {
   }
 }
 
-public enum WebSocketOpcode: UInt8 {
+public enum WebSocketOpcode: UInt8, Codable {
   case continuationFrame = 0x0
   case textFrame = 0x1
   case binaryFrame = 0x2
@@ -37,7 +37,7 @@ public enum WebSocketPayload {
   case close(code: UInt16, reason: String)
 }
 
-public struct WebSocketMasks {
+public struct WebSocketMasks: Codable {
   static let finBit: UInt8 = 0b10000000
   static let opcode: UInt8 = 0b00001111
   static let maskBit: UInt8 = 0b10000000
@@ -96,4 +96,67 @@ extension WebSocketMessage: CustomStringConvertible {
 
     return info
   }
+}
+
+// MARK: WebSocketPayload - Codable
+
+extension WebSocketPayload: Codable {
+
+    enum CodingKeys: String, CodingKey {
+        case none
+        case binary
+        case text
+        case close
+        case code
+        case reason
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        if container.allKeys.contains(.none), try container.decodeNil(forKey: .none) == false {
+            self = .none
+            return
+        }
+        if container.allKeys.contains(.binary), try container.decodeNil(forKey: .binary) == false {
+            var associatedValues = try container.nestedUnkeyedContainer(forKey: .binary)
+            let associatedValue0 = try associatedValues.decode(Data.self)
+            self = .binary(associatedValue0)
+            return
+        }
+        if container.allKeys.contains(.text), try container.decodeNil(forKey: .text) == false {
+            var associatedValues = try container.nestedUnkeyedContainer(forKey: .text)
+            let associatedValue0 = try associatedValues.decode(String.self)
+            self = .text(associatedValue0)
+            return
+        }
+        if container.allKeys.contains(.close), try container.decodeNil(forKey: .close) == false {
+            let associatedValues = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .close)
+            let code = try associatedValues.decode(UInt16.self, forKey: .code)
+            let reason = try associatedValues.decode(String.self, forKey: .reason)
+            self = .close(code: code, reason: reason)
+            return
+        }
+        throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Unknown enum case"))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        switch self {
+        case .none:
+            _ = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .none)
+        case let .binary(associatedValue0):
+            var associatedValues = container.nestedUnkeyedContainer(forKey: .binary)
+            try associatedValues.encode(associatedValue0)
+        case let .text(associatedValue0):
+            var associatedValues = container.nestedUnkeyedContainer(forKey: .text)
+            try associatedValues.encode(associatedValue0)
+        case let .close(code, reason):
+            var associatedValues = container.nestedContainer(keyedBy: CodingKeys.self, forKey: .close)
+            try associatedValues.encode(code, forKey: .code)
+            try associatedValues.encode(reason, forKey: .reason)
+        }
+    }
+
 }
