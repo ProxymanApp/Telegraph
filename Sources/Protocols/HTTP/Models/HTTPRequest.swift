@@ -24,7 +24,7 @@ open class HTTPRequest: HTTPMessage {
     super.init(version: version, headers: headers, body: body)
   }
 
-  override public var firstLine: String {
+  override internal var firstLine: String {
     // The first line looks like this: GET / HTTP/1.1
     return "\(method) \(uri) \(version)"
   }

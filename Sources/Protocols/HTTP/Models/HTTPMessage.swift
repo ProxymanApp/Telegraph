@@ -13,8 +13,8 @@ open class HTTPMessage {
   public var headers: HTTPHeaders
   public var body: Data
 
-  public var firstLine: String { return "" }
-  public var stripBody = false
+  internal var firstLine: String { return "" }
+  internal var stripBody = false
 
   /// Creates a new HTTPMessage.
   public init(version: HTTPVersion = .default, headers: HTTPHeaders = HTTPHeaders.empty, body: Data = Data()) {
