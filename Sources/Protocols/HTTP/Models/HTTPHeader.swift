@@ -61,7 +61,11 @@ public class HTTPHeaders {
       let index = orderHeaders.firstIndex { $0.0.nameInLowercase == key.nameInLowercase }
       if let removeIndex = index {
         orderHeaders.remove(at: removeIndex)
-        mapHeaders[key] = nil
+        // Build map
+        mapHeaders.removeAll()
+        orderHeaders.enumerated().forEach { (value) in
+            mapHeaders[value.element.0] = value.offset
+        }
       }
     }
   }
