@@ -10,30 +10,26 @@ import Foundation
 
 public class HTTPHeaders {
 
-  private var mapHeaders: [HTTPHeaderName: Int] = [:]
+  private var headers: [HTTPHeaderName: String] = [:]
   public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
 
   public init(_ headers: [HTTPHeaderName: String]) {
+    self.headers = headers
     headers.forEach { key, value in
       self[key] = value
     }
   }
 
   public static var empty: HTTPHeaders {
-    return HTTPHeaders.init([HTTPHeaderName: String](minimumCapacity: 3))
+    return HTTPHeaders([HTTPHeaderName: String](minimumCapacity: 3))
   }
 
   public var count: Int {
-    return orderHeaders.count
+    return headers.count
   }
 
   public subscript(key: String) -> String? {
-    get {
-      if let index = mapHeaders[HTTPHeaderName(key)] {
-        return orderHeaders[safe: index]?.1
-      }
-      return nil
-    }
+    get { return headers[HTTPHeaderName(key)] }
     set {
       let key = HTTPHeaderName(key)
       updateOrderHeader(with: key, newValue: newValue)
@@ -41,12 +37,7 @@ public class HTTPHeaders {
   }
 
   public subscript(key: HTTPHeaderName) -> String? {
-    get {
-      if let index = mapHeaders[key] {
-        return orderHeaders[safe: index]?.1
-      }
-      return nil
-    }
+    get { return headers[key] }
     set {
       updateOrderHeader(with: key, newValue: newValue)
     }
@@ -55,17 +46,21 @@ public class HTTPHeaders {
   private func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
     // Append or remove
     if let newValue = newValue {
+      let isContain = headers[key] != nil
+
+      // Remove duplicated key except set-cookie
+      if isContain && key != .setCookie {
+        if let index = orderHeaders.firstIndex (where: { $0.0 == key }) {
+          orderHeaders.remove(at: index)
+        }
+      }
+      headers[key] = newValue
       orderHeaders.append((key, newValue))
-      mapHeaders[key] = orderHeaders.count - 1
     } else {
+      headers[key] = nil
       let index = orderHeaders.firstIndex { $0.0.nameInLowercase == key.nameInLowercase }
       if let removeIndex = index {
         orderHeaders.remove(at: removeIndex)
-        // Build map
-        mapHeaders.removeAll()
-        orderHeaders.enumerated().forEach { (value) in
-            mapHeaders[value.element.0] = value.offset
-        }
       }
     }
   }

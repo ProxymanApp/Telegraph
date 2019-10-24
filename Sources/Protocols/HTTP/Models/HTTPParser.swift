@@ -212,18 +212,8 @@ extension HTTPParser {
     guard let headerKey = String(bytes: headerKeyData, encoding: .utf8) else { return false }
     guard let headerValue = String(bytes: headerValueData, encoding: .utf8) else { return false }
 
-    // If the header already exists add it comma separated
-    if let existingValue = message?.headers[headerKey] {
-      if headerKey.lowercased() == "host" {
-        // Only one host
-        message?.headers[headerKey] = nil
-        message?.headers[headerKey] = headerValue
-      } else {
-        message?.headers[headerKey] = headerValue
-      }
-    } else {
-      message?.headers[headerKey] = headerValue
-    }
+    // Add header
+    message?.headers[headerKey] = headerValue
 
     isHeaderComplete = true
     return true
