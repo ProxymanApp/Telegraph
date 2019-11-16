@@ -308,6 +308,7 @@ public extension HTTPStatus {
 
 public extension HTTPStatus {
 
+  // swiftlint:disable:next function_body_length
   static func status(from code: Int) -> HTTPStatus? {
     switch code {
     case 100:

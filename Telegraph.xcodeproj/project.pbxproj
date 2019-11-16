@@ -929,7 +929,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n  echo 'Running Swiftlint'\n  swiftlint\nelse\n  echo 'Skipping SwiftLint'\nfi";
+			shellScript = "if which swiftlint >/dev/null; then\n  echo 'Running Swiftlint'\n  swiftlint\nelse\n  echo 'Skipping SwiftLint'\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1198,9 +1198,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Tests/Host/TelegraphTestsHost.entitlements;
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)"
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/Host/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1214,9 +1212,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Tests/Host/TelegraphTestsHost.entitlements;
 				DEVELOPMENT_TEAM = "";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)"
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/Host/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

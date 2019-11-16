@@ -59,7 +59,7 @@ public extension URI {
 
 extension URI: CustomStringConvertible {
   public var description: String {
-    if let query = query {
+    if let query = query, !query.isEmpty {
       return "\(path)?\(query)"
     }
     return path
