@@ -21,7 +21,7 @@ public struct URI {
 
   /// Creates a URI from URLComponents. Takes only the path, query string.
   public init(components: URLComponents) {
-    self.init(path: components.path, query: components.percentEncodedQuery)
+    self.init(path: components.percentEncodedPath, query: components.percentEncodedQuery)
   }
 
   /// Creates a URI from the provided URL. Takes only the path, query string and fragment.
