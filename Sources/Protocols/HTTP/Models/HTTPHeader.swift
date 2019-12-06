@@ -46,6 +46,12 @@ public class HTTPHeaders {
   private func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
     // Append or remove
     if let newValue = newValue {
+
+      // No duplicated in Host
+      if key == .host {
+        orderHeaders.removeAll { $0.0 == .host }
+      }
+
       // Allow duplicated key in orderHeaders
       // headers dict is private variables
       headers[key] = newValue
