@@ -32,24 +32,34 @@ public class HTTPHeaders {
     get { return headers[HTTPHeaderName(key)] }
     set {
       let key = HTTPHeaderName(key)
-      updateOrderHeader(with: key, newValue: newValue)
+      updateOrderHeader(with: key, newValue: newValue, allowDuplicated: false) // Dont' allow duplicated header by default
     }
   }
 
   public subscript(key: HTTPHeaderName) -> String? {
     get { return headers[key] }
     set {
-      updateOrderHeader(with: key, newValue: newValue)
+      updateOrderHeader(with: key, newValue: newValue, allowDuplicated: false)
     }
   }
 
-  private func updateOrderHeader(with key: HTTPHeaderName, newValue: String?) {
+  func addHeader(with key: String, newValue: String?, allowDuplicated: Bool) {
+    updateOrderHeader(with: HTTPHeaderName(key), newValue: newValue, allowDuplicated: allowDuplicated)
+  }
+
+  private func updateOrderHeader(with key: HTTPHeaderName, newValue: String?, allowDuplicated: Bool) {
     // Append or remove
     if let newValue = newValue {
 
       // No duplicated in Host
       if key == .host {
         orderHeaders.removeAll { $0.0 == .host }
+      }
+
+      // If NOT duplicated -> Just remove the previous one
+      if !allowDuplicated {
+        headers[key] = nil
+        orderHeaders.removeAll { $0.0 == key }
       }
 
       // Allow duplicated key in orderHeaders
