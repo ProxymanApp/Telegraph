@@ -213,7 +213,7 @@ extension HTTPParser {
     guard let headerValue = String(bytes: headerValueData, encoding: .utf8) else { return false }
 
     // Add header
-    message?.headers[headerKey] = headerValue
+    message?.headers.addHeader(with: headerKey, newValue: headerValue, allowDuplicated: true)
 
     isHeaderComplete = true
     return true
