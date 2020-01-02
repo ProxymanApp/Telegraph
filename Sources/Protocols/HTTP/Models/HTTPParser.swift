@@ -136,10 +136,28 @@ extension HTTPParser {
 
     // Not done parsing the URI? Continue
     guard rawParser.isURLComplete else { return continueParsing }
+    guard let uriString = String(data: urlData, encoding: .utf8) else { return stopParsing }
 
     // Check that the URI is valid
-    guard let uriString = String(data: urlData, encoding: .utf8),
-      let uriComponents = URLComponents(string: uriString) else { return stopParsing }
+    var _uriComponents: URLComponents?
+
+    // Assume that the URL is already percent-encoded
+    // Just convert to Component
+    // Init URLComponents from URL instead of String because Component sometime doesn't parse properly
+    if let url = URL(string: uriString), let uriComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+        _uriComponents = uriComponents
+    } else {
+      // If the URL is not encoded -> try to encoded
+      // Ex: curl http://fonts.googleapis.com/css?family=Roboto:300|Google+Sans
+      if let encoded = uriString.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed), let url = URL(string: encoded) {
+        _uriComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+      }
+    }
+
+    // Stop if couldn't construct the Components
+    guard let uriComponents = _uriComponents else {
+      return stopParsing
+    }
 
     // Set the URI, method and the host header
     request?.uri = URI(components: uriComponents)
