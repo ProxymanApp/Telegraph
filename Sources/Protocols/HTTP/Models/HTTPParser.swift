@@ -145,7 +145,18 @@ extension HTTPParser {
     // Just convert to Component
     // Init URLComponents from URL instead of String because Component sometime doesn't parse properly
     if let url = URL(string: uriString), let uriComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+
+      // Edge case where // is valid URL
+      // https://github.com/ProxymanApp/Proxyman/issues/376
+      if uriString.hasPrefix("//") {
+        // Add host temporary to get the Path properly from URLComponents
+        let newStr = "http://google.com\(uriString)"
+        if let url = URL(string: newStr), let uriComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+          _uriComponents = uriComponents
+        }
+      } else {
         _uriComponents = uriComponents
+      }
     } else {
       // If the URL is not encoded -> try to encoded
       // Ex: curl http://fonts.googleapis.com/css?family=Roboto:300|Google+Sans
