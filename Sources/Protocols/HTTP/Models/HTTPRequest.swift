@@ -35,6 +35,10 @@ open class HTTPRequest: HTTPMessage {
     // Write the content length only if we have a body
     headers.contentLength = body.isEmpty ? nil : body.count
   }
+
+  public func clone() -> HTTPRequest {
+    return HTTPRequest(method, uri: uri, version: version, headers: headers.clone(), body: body)
+  }
 }
 
 // MARK: CustomStringConvertible implementation

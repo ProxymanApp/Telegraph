@@ -13,6 +13,11 @@ public class HTTPHeaders {
   private var headers: [HTTPHeaderName: String] = [:]
   public private(set) var orderHeaders: [(HTTPHeaderName, String)] = []
 
+  private init(headers: [HTTPHeaderName: String], orderHeaders: [(HTTPHeaderName, String)]) {
+      self.headers = headers
+      self.orderHeaders = orderHeaders
+  }
+
   public init(_ headers: [HTTPHeaderName: String]) {
     self.headers = headers
     headers.forEach { key, value in
@@ -43,7 +48,7 @@ public class HTTPHeaders {
     }
   }
 
-  func addHeader(with key: String, newValue: String?, allowDuplicated: Bool) {
+  public func addHeader(with key: String, newValue: String?, allowDuplicated: Bool) {
     updateOrderHeader(with: HTTPHeaderName(key), newValue: newValue, allowDuplicated: allowDuplicated)
   }
 
@@ -70,6 +75,10 @@ public class HTTPHeaders {
       headers[key] = nil
       orderHeaders.removeAll { $0.0.nameInLowercase == key.nameInLowercase }
     }
+  }
+
+  public func clone() -> HTTPHeaders {
+    return HTTPHeaders(headers: self.headers, orderHeaders: self.orderHeaders)
   }
 }
 
