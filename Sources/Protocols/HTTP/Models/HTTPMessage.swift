@@ -94,6 +94,12 @@ public extension HTTPMessage {
         head.append(firstLine.utf8Data)
         head.append(.crlf)
 
+        // Set content lent if it's absent
+        // Otherwise the client doesn't know when the response is done
+        if headers.contentLength == nil && !body.isEmpty {
+            headers.contentLength = body.count
+        }
+        
         // Write the headers
         headers.orderHeaders.forEach { key, value in
             head.append("\(key): \(value)".utf8Data)
