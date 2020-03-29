@@ -6,7 +6,7 @@
 //  Copyright © 2017 Building42. All rights reserved.
 //
 
-public struct HTTPMethod: Hashable {
+public struct HTTPMethod: Hashable, Codable {
   public let name: String
 }
 
