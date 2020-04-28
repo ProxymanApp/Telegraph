@@ -16,6 +16,13 @@ private let stopParsing: Int32 = -1
 // MARK: HTTPParser
 
 public final class HTTPParser {
+
+  public enum ParserType {
+    case request
+    case response
+    case both
+  }
+
   public private(set) var message: HTTPMessage?
   public private(set) var isMessageComplete = false
   public private(set) var isHeaderComplete = false
@@ -34,8 +41,16 @@ public final class HTTPParser {
   private var headerChunkWasValue = false
 
   /// Creates an HTTP parser.
-  public init() {
-    rawParser = HTTPRawParser.make()
+  public init(type: ParserType) {
+    switch type {
+    case .request:
+      rawParser = HTTPRawParser.makeRequestParser()
+    case .response:
+      rawParser = HTTPRawParser.makeResponseParser()
+    case .both:
+      rawParser = HTTPRawParser.make()
+    }
+
     rawParserSettings = HTTPRawParserSettings.make()
 
     // Attach ourself as the context of the raw parser

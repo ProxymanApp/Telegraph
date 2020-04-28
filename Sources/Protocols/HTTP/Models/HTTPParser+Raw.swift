@@ -25,6 +25,18 @@ extension HTTPRawParser {
     return parser
   }
 
+  static func makeRequestParser() -> HTTPRawParser {
+    var parser = HTTPRawParser()
+    http_parser_init(&parser, HTTP_REQUEST)
+    return parser
+  }
+
+  static func makeResponseParser() -> HTTPRawParser {
+    var parser = HTTPRawParser()
+    http_parser_init(&parser, HTTP_RESPONSE)
+    return parser
+  }
+
   /// Parses the incoming data and returns how many bytes were parsed.
   static func parse(parser: UnsafeMutablePointer<HTTPRawParser>, settings: UnsafeMutablePointer<HTTPRawParserSettings>, data: Data) -> Int {
     return data.withUnsafeBytes {

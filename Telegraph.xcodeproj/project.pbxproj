@@ -750,7 +750,6 @@
 				825A71B81ECD29020043AC8D /* Frameworks */,
 				825A71B91ECD29020043AC8D /* Headers */,
 				825A71BA1ECD29020043AC8D /* Resources */,
-				8246E0621FB26DD60006A6C5 /* [SwiftLint] Analyze Source */,
 			);
 			buildRules = (
 			);
@@ -916,20 +915,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if which swiftlint >/dev/null; then\n  echo 'Running Swiftlint'\n  swiftlint\nelse\n  echo 'Skipping SwiftLint'\nfi";
-		};
-		8246E0621FB26DD60006A6C5 /* [SwiftLint] Analyze Source */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[SwiftLint] Analyze Source";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n  echo 'Running Swiftlint'\n  swiftlint\nelse\n  echo 'Skipping SwiftLint'\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

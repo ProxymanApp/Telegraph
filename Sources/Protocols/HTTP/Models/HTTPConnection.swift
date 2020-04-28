@@ -32,7 +32,7 @@ public class HTTPConnection: TCPConnection {
   public required init(socket: TCPSocket, config: HTTPConfig) {
     self.socket = socket
     self.config = config
-    self.parser = HTTPParser()
+    self.parser = HTTPParser(type: .both)
   }
 
   /// Opens the connection.
