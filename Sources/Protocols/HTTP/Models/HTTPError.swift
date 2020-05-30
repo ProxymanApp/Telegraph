@@ -22,6 +22,8 @@ public enum HTTPError: Error {
   case invalidVersion
 
   case headerOverflow
+  case invalidTransferEncoding
+
   case parseFailed(code: Int)
 }
 
@@ -41,6 +43,7 @@ extension HTTPError: CustomStringConvertible {
     case .invalidContentLength: return "Invalid content length"
 
     case .headerOverflow: return "Received too many headers"
+    case .invalidTransferEncoding: return "Invalid Transfer-Encoding. Try to remove this header"
     case .parseFailed(let code): return "Invalid data, parser failed with code \(code)"
     }
   }

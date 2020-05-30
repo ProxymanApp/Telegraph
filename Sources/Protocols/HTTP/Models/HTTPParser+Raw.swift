@@ -154,7 +154,11 @@ extension HTTPError {
     case HPE_HEADER_OVERFLOW:
       self = .headerOverflow
     default:
-      self = .parseFailed(code: Int(code.rawValue))
+      if code.rawValue == 27 {
+        self = .invalidTransferEncoding
+      } else {
+        self = .parseFailed(code: Int(code.rawValue))
+      }
     }
   }
 }
